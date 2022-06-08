@@ -23,6 +23,43 @@ app.get('/',(req,res) =>{
     })
 });
 
+app.post('/register', async (req,res) => {
+  const {nama,email,password} = req.body;
+  console.log(nama,email,password);
+  res.json({
+    message: 'success'
+  })
+})
+
+app.post('/login', async (req,res) => {
+  try{
+    let {email,password} = req.body;
+    await db.select('email','password')
+    .from('user')
+    .where({
+      email: email,
+      password: password
+    }).then(data => {
+      if(JSON.parse(JSON.stringify(data)).length === 1){
+        res.json({
+          message: 'success',
+          data: data
+        })
+      }else{
+        res.json({
+          message: 'gagal'
+        })
+      }
+      
+    })
+  }catch(e){
+    console.log(e)
+  }
+    
+  
+  
+})
+
 app.get('/allGejala',(req,res) =>{
     db.select('kd_gejala','nm_gejala')
       .from('gejala')
@@ -90,8 +127,6 @@ app.post('/data', async (req,res) => {
   const [cekHasil] = await Promise.all([
     db.select('id_penyakit').from('rule').where('id_penyakit',hasilCocok.id_penyakit)
   ]);
-
-  
 
   const [hasilAkhir] = await Promise.all([
     db.select('id_penyakit','nm_penyakit').from('penyakit').where('id_penyakit',hasilCocok.id_penyakit)
